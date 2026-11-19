@@ -2216,7 +2216,7 @@
         const logoBox = document.getElementById('header-logo-content');
         const logoWrap = document.getElementById('header-logo-wrap');
         if (state.logo.mode === 'image' && state.logo.imageUrl) {
-          const fitClass = state.logo.fit === 'contain' ? 'object-contain p-1 bg-white' : 'object-cover';
+          const fitClass = state.logo.fit === 'contain' ? 'object-contain p-1 bg-white' : 'object-contain bg-slate-50';
           logoBox.innerHTML = '<img src="' + escapeHTML(state.logo.imageUrl) + '" alt="Logo" class="w-full h-full ' + fitClass + '" />';
         } else {
           logoBox.innerHTML = '<div class="w-6 h-6 text-white">' + FRUIT_DOODLE_SVGS[0] + '</div>';
@@ -2367,7 +2367,7 @@
               '<div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-5">' +
               state.coreValues.map(function (cv, idx) {
                 const iconInner = cv.imageUrl
-                  ? '<img src="' + escapeHTML(cv.imageUrl) + '" alt="' + escapeHTML(cv.title) + '" class="w-full h-full object-cover" />'
+                  ? '<img src="' + escapeHTML(cv.imageUrl) + '" alt="' + escapeHTML(cv.title) + '" class="w-full h-full object-contain bg-slate-50" />'
                   : '<i class="fa-solid ' + escapeHTML(cv.icon || 'fa-seedling') + ' text-lg text-white"></i>';
                 return '<div class="rounded-2xl bg-emerald-50/55 border border-emerald-100/90 p-5 space-y-3 hover:shadow-xs transition">' +
                   '<div data-action="' + (admin ? 'edit-core-value-icon' : '') + '" data-cv-index="' + idx + '" class="relative w-12 h-12 rounded-2xl flex items-center justify-center overflow-hidden shadow-xs ' + (admin ? 'cursor-pointer ring-2 ring-transparent hover:ring-amber-500' : '') + '" style="background-color: var(--primary);" title="' + (admin ? 'Bấm để đổi ảnh biểu tượng' : '') + '">' +
@@ -2473,7 +2473,7 @@
                 '<div class="flex items-center gap-3">' +
                   '<div class="w-10 h-10 rounded-2xl flex items-center justify-center text-white overflow-hidden" style="background-color: var(--primary);">' +
                     (state.logo.mode === 'image' && state.logo.imageUrl
-                      ? '<img src="' + escapeHTML(state.logo.imageUrl) + '" alt="Logo" class="w-full h-full object-cover" />'
+                      ? '<img src="' + escapeHTML(state.logo.imageUrl) + '" alt="Logo" class="w-full h-full object-contain bg-slate-50" />'
                       : '<div class="w-5 h-5">' + FRUIT_DOODLE_SVGS[0] + '</div>') +
                   '</div>' +
                   '<div>' +
@@ -2549,7 +2549,7 @@
 
       function hydrateBannerMedia() {
         const el = document.getElementById('banner-media-bg');
-        renderMediaElement(el, state.banner, state.banner.imageUrl, state.banner.title, 'w-full h-full object-cover');
+        renderMediaElement(el, state.banner, state.banner.imageUrl, state.banner.title, 'w-full h-full object-contain bg-slate-50');
       }
 
       function hydrateCardMedia(p) {
@@ -2563,7 +2563,7 @@
           videoPoster: p.videoPoster || primary,
           videoSpeed: p.videoSpeed
         };
-        renderMediaElement(el, proxy, primary, p.name, 'w-full h-full object-cover group-hover:scale-105 transition duration-500');
+        renderMediaElement(el, proxy, primary, p.name, 'w-full h-full object-contain bg-slate-50 group-hover:scale-105 transition duration-500');
       }
 
       /* -------------------------------------------------------------------
@@ -2699,7 +2699,7 @@
               state.products.map(function (p) {
                 const thumb = getProductPrimaryImage(p);
                 return '<div class="flex items-center gap-2.5 p-2.5 rounded-2xl bg-slate-50 border border-slate-200/90">' +
-                  '<img src="' + escapeHTML(thumb) + '" alt="" class="w-12 h-12 rounded-xl object-cover bg-white border border-slate-200 shrink-0" />' +
+                  '<img src="' + escapeHTML(thumb) + '" alt="" class="w-12 h-12 rounded-xl object-contain bg-slate-50 bg-white border border-slate-200 shrink-0" />' +
                   '<div class="min-w-0 flex-1">' +
                     '<div class="font-bold text-slate-900 text-xs truncate">' + escapeHTML(p.name) + '</div>' +
                     '<div class="text-[11px] font-bold text-emerald-700">' + formatCurrency(p.price) + ' <span class="text-slate-400 font-normal">• ' + (p.mediaType === 'video' ? 'Video nền' : 'Ảnh') + '</span></div>' +
@@ -2850,16 +2850,16 @@
             videoPoster: gallery[0],
             videoSpeed: p.videoSpeed
           };
-          renderMediaElement(stage, proxy, gallery[0], p.name, 'w-full h-full object-cover');
+          renderMediaElement(stage, proxy, gallery[0], p.name, 'w-full h-full object-contain bg-slate-50');
         } else {
           const activeImg = gallery[activePdMediaIndex] || gallery[0];
-          stage.innerHTML = '<img src="' + escapeHTML(activeImg) + '" alt="' + escapeHTML(p.name) + '" class="w-full h-full object-cover" onerror="this.src=\'https://placehold.co/600x600/f1f5f9/64748b?text=San+Pham\'" />';
+          stage.innerHTML = '<img src="' + escapeHTML(activeImg) + '" alt="' + escapeHTML(p.name) + '" class="w-full h-full object-contain bg-slate-50" onerror="this.src=\'https://placehold.co/600x600/f1f5f9/64748b?text=San+Pham\'" />';
         }
 
         let thumbsHtml = gallery.map(function (imgUrl, idx) {
           const isSelected = idx === activePdMediaIndex;
           return '<button type="button" data-action="select-pd-thumb" data-index="' + idx + '" class="relative w-16 h-16 rounded-2xl overflow-hidden border-2 shrink-0 transition ' + (isSelected ? 'border-emerald-700 ring-2 ring-emerald-500/30' : 'border-slate-200 opacity-80 hover:opacity-100') + '">' +
-            '<img src="' + escapeHTML(imgUrl) + '" alt="" class="w-full h-full object-cover" />' +
+            '<img src="' + escapeHTML(imgUrl) + '" alt="" class="w-full h-full object-contain bg-slate-50" />' +
             (idx === 0 && p.mediaType === 'video' ? '<span class="absolute inset-0 bg-slate-900/35 text-white flex items-center justify-center text-xs"><i class="fa-solid fa-play"></i></span>' : '') +
           '</button>';
         }).join('');
@@ -3039,7 +3039,7 @@
         overviewEl.innerHTML = blocks.map(function (b) {
           if (b.type === 'image' && b.url) {
             return '<figure class="my-4 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 shadow-2xs">' +
-              '<img src="' + escapeHTML(b.url) + '" alt="' + escapeHTML(b.caption || p.name) + '" class="w-full max-h-[450px] object-cover" />' +
+              '<img src="' + escapeHTML(b.url) + '" alt="' + escapeHTML(b.caption || p.name) + '" class="w-full max-h-[450px] object-contain bg-slate-50" />' +
               (b.caption ? '<figcaption class="px-4 py-2 text-xs text-slate-500 italic bg-white border-t border-slate-100 text-center">' + escapeHTML(b.caption) + '</figcaption>' : '') +
             '</figure>';
           }
@@ -3105,7 +3105,7 @@
           const cover = getProductPrimaryImage(rp);
           return '<div data-action="open-product-detail" data-id="' + escapeHTML(rp.id) + '" class="cursor-pointer group bg-white rounded-2xl border border-slate-200/80 overflow-hidden hover:shadow-md transition flex flex-col">' +
             '<div class="relative aspect-square bg-slate-50 overflow-hidden">' +
-              '<img src="' + escapeHTML(cover) + '" alt="' + escapeHTML(rp.name) + '" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />' +
+              '<img src="' + escapeHTML(cover) + '" alt="' + escapeHTML(rp.name) + '" class="w-full h-full object-contain bg-slate-50 group-hover:scale-105 transition duration-300" />' +
             '</div>' +
             '<div class="p-3.5 flex-1 flex flex-col justify-between">' +
               '<h5 class="font-bold text-slate-800 text-xs sm:text-sm line-clamp-2 group-hover:text-emerald-700 transition mb-2">' + escapeHTML(rp.name) + '</h5>' +
@@ -3174,7 +3174,7 @@
             const lineTotal = Number(p.price) * item.qty;
             total += lineTotal;
             return '<div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">' +
-              '<img src="' + escapeHTML(getProductPrimaryImage(p)) + '" alt="" class="w-14 h-14 rounded-xl object-cover bg-white border border-slate-200 shrink-0" />' +
+              '<img src="' + escapeHTML(getProductPrimaryImage(p)) + '" alt="" class="w-14 h-14 rounded-xl object-contain bg-slate-50 bg-white border border-slate-200 shrink-0" />' +
               '<div class="min-w-0 flex-1">' +
                 '<h4 class="font-bold text-slate-900 text-xs sm:text-sm truncate">' + escapeHTML(p.name) + '</h4>' +
                 '<div class="text-xs font-extrabold text-emerald-700 mt-0.5">' + formatCurrency(p.price) + '</div>' +
@@ -3916,7 +3916,7 @@
                 gallery.map(function (url, idx) {
                   return '<div class="p-2 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">' +
                     '<div class="relative aspect-square rounded-xl overflow-hidden bg-white">' +
-                      '<img src="' + escapeHTML(url) + '" class="w-full h-full object-cover" />' +
+                      '<img src="' + escapeHTML(url) + '" class="w-full h-full object-contain bg-slate-50" />' +
                       (idx === 0 ? '<span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-md bg-emerald-700 text-white text-[10px] font-bold">Ảnh chính</span>' : '') +
                     '</div>' +
                     '<div class="flex items-center justify-between gap-1">' +
