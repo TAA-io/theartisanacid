@@ -2493,6 +2493,15 @@
                   '<p class="text-slate-300"><i class="fa-solid fa-location-dot text-emerald-400 mr-2"></i>' + escapeHTML(f.address) + '</p>' +
                   '<p class="text-slate-300"><i class="fa-solid fa-phone text-emerald-400 mr-2"></i>' + escapeHTML(f.phone) + '</p>' +
                   '<p class="text-slate-300"><i class="fa-solid fa-envelope text-emerald-400 mr-2"></i>' + escapeHTML(f.email) + '</p>' +
+              (f.facebookUrl
+                    ? '<p class="text-slate-300"><i class="fa-brands fa-facebook text-sky-400 mr-2"></i><a href="' + escapeHTML(f.facebookUrl) + '" target="_blank" rel="noopener noreferrer" class="underline hover:text-white">' + escapeHTML(f.facebookLabel || f.facebookUrl) + '</a></p>'
+                    : '') +
+                  (f.facebookQrUrl
+                    ? '<div class="pt-1.5 flex items-center gap-2.5">' +
+                        '<img src="' + escapeHTML(f.facebookQrUrl) + '" alt="QR Facebook" class="w-16 h-16 rounded-xl object-contain bg-white p-1 border border-slate-700 shrink-0" />' +
+                        '<span class="text-[11px] text-slate-400 leading-snug">Quét mã QR để mở nhanh Fanpage Facebook</span>' +
+                      '</div>'
+                    : '') +
                 '</div>' +
                 '<div class="space-y-2 bg-slate-800/70 rounded-2xl p-4 border border-slate-700/70">' +
                   '<h4 class="font-extrabold text-emerald-400 uppercase tracking-wider text-xs">Tài khoản nhận thanh toán</h4>' +
@@ -4396,18 +4405,25 @@
           return;
         }
 
-        if (action === 'save-footer') {
+if (action === 'save-footer') {
+          let fbUrl = document.getElementById('ft-fb-url').value.trim();
+          if (fbUrl && !/^https?:\/\//i.test(fbUrl)) {
+            fbUrl = 'https://' + fbUrl;
+          }
           state.footer.about = document.getElementById('ft-about').value.trim();
           state.footer.address = document.getElementById('ft-addr').value.trim();
           state.footer.phone = document.getElementById('ft-phone').value.trim();
           state.footer.email = document.getElementById('ft-email').value.trim();
+          state.footer.facebookUrl = fbUrl;
+          state.footer.facebookLabel = document.getElementById('ft-fb-label').value.trim();
+          state.footer.facebookQrUrl = document.getElementById('ft-fb-qr-url').value.trim();
           state.footer.bankName = document.getElementById('ft-bank').value.trim();
           state.footer.accountHolder = document.getElementById('ft-holder').value.trim();
           state.footer.accountNumber = document.getElementById('ft-accnum').value.trim();
           saveState();
           renderStorefront();
           document.getElementById('modal-generic-admin').classList.add('hidden');
-          showToast('Đã cập nhật chân trang & tài khoản ngân hàng');
+          showToast('Đã cập nhật chân trang & thông tin Facebook');
           return;
         }
 
