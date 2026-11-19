@@ -4378,40 +4378,103 @@
           return;
         }
 
-        if (action === 'open-footer-modal') {
+if (action === 'open-footer-modal') {
           if (!isAdminUser()) return;
           const f = state.footer;
           openGenericAdminModal(
             'Chỉnh sửa Chân trang & Tài khoản nhận chuyển khoản',
             '<div class="space-y-3">' +
-              '<div><label class="block text-xs font-bold mb-1">Giới thiệu ngắn</label><textarea id="ft-about" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">' + escapeHTML(f.about) + '</textarea></div>' +
-              '<div><label class="block text-xs font-bold mb-1">Địa chỉ xưởng &amp; cửa hàng</label><input id="ft-addr" type="text" value="' + escapeHTML(f.address) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" /></div>' +
-              '<div class="grid grid-cols-2 gap-2.5">' +
-                '<div><label class="block text-xs font-bold mb-1">Điện thoại</label><input id="ft-phone" type="text" value="' + escapeHTML(f.phone) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" /></div>' +
-                '<div><label class="block text-xs font-bold mb-1">Email</label><input id="ft-email" type="text" value="' + escapeHTML(f.email) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" /></div>' +
+              '<div>' +
+                '<label class="block text-xs font-bold text-slate-700 mb-1">Giới thiệu ngắn</label>' +
+                '<textarea id="ft-about" rows="2" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs">' + escapeHTML(f.about) + '</textarea>' +
               '</div>' +
-              '<div class="border-t border-slate-200 pt-2 space-y-2">' +
-                '<div class="text-xs font-extrabold text-emerald-800">Thông tin chuyển khoản thanh toán</div>' +
-                '<div><label class="block text-xs font-bold mb-1">Ngân hàng</label><input id="ft-bank" type="text" value="' + escapeHTML(f.bankName) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold" /></div>' +
-                '<div class="grid grid-cols-2 gap-2.5">' +
-                  '<div><label class="block text-xs font-bold mb-1">Chủ tài khoản</label><input id="ft-holder" type="text" value="' + escapeHTML(f.accountHolder) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold" /></div>' +
-                  '<div><label class="block text-xs font-bold mb-1">Số tài khoản</label><input id="ft-accnum" type="text" value="' + escapeHTML(f.accountNumber) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-extrabold" /></div>' +
+              '<div>' +
+                '<label class="block text-xs font-bold text-slate-700 mb-1">Địa chỉ xưởng &amp; cửa hàng</label>' +
+                '<input id="ft-address" type="text" value="' + escapeHTML(f.address) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />' +
+              '</div>' +
+              '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+                '<div>' +
+                  '<label class="block text-xs font-bold text-slate-700 mb-1">Điện thoại</label>' +
+                  '<input id="ft-phone" type="text" value="' + escapeHTML(f.phone) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />' +
+                '</div>' +
+                '<div>' +
+                  '<label class="block text-xs font-bold text-slate-700 mb-1">Email</label>' +
+                  '<input id="ft-email" type="text" value="' + escapeHTML(f.email) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />' +
+                '</div>' +
+              '</div>' +
+              '<div class="p-3 rounded-2xl bg-sky-50/70 border border-sky-200/80 space-y-2.5">' +
+                '<div class="text-xs font-extrabold text-sky-900">Fanpage &amp; Mã QR Facebook</div>' +
+                '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">' +
+                  '<div>' +
+                    '<label class="block text-[11px] font-bold text-slate-700 mb-1">Địa chỉ link Page Facebook</label>' +
+                    '<input id="ft-fb-url" type="text" value="' + escapeHTML(f.facebookUrl || '') + '" placeholder="https://facebook.com/..." class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs" />' +
+                  '</div>' +
+                  '<div>' +
+                    '<label class="block text-[11px] font-bold text-slate-700 mb-1">Tên hiển thị link (tùy chọn)</label>' +
+                    '<input id="ft-fb-label" type="text" value="' + escapeHTML(f.facebookLabel || '') + '" placeholder="Fanpage The Artisan Acid" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs" />' +
+                  '</div>' +
+                '</div>' +
+                '<div>' +
+                  '<label class="block text-[11px] font-bold text-slate-700 mb-1">Link ảnh QR Facebook (khuyên dùng để đồng bộ nhẹ)</label>' +
+                  '<input id="ft-fb-qr-url" type="text" value="' + escapeHTML(f.facebookQrUrl || '') + '" placeholder="https://.../qr-facebook.png" class="w-full px-3 py-2 rounded-xl bg-white border border-slate-300 text-xs" />' +
+                '</div>' +
+                '<div class="flex items-center justify-between gap-2">' +
+                  '<label class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-300 text-[11px] font-bold text-slate-700 cursor-pointer">' +
+                    '<i class="fa-solid fa-qrcode"></i><span>Tải ảnh QR từ máy</span>' +
+                    '<input id="ft-fb-qr-file" type="file" accept="image/*" class="hidden" />' +
+                  '</label>' +
+                  '<button type="button" id="ft-fb-qr-clear" class="text-[11px] font-bold text-rose-600 hover:underline">Xóa mã QR</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="text-xs font-extrabold text-emerald-800 pt-1">Thông tin chuyển khoản thanh toán</div>' +
+              '<div>' +
+                '<label class="block text-xs font-bold text-slate-700 mb-1">Ngân hàng</label>' +
+                '<input id="ft-bank" type="text" value="' + escapeHTML(f.bankName) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />' +
+              '</div>' +
+              '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
+                '<div>' +
+                  '<label class="block text-xs font-bold text-slate-700 mb-1">Chủ tài khoản</label>' +
+                  '<input id="ft-holder" type="text" value="' + escapeHTML(f.accountHolder) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />' +
+                '</div>' +
+                '<div>' +
+                  '<label class="block text-xs font-bold text-slate-700 mb-1">Số tài khoản</label>' +
+                  '<input id="ft-acc" type="text" value="' + escapeHTML(f.accountNumber) + '" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs" />' +
                 '</div>' +
               '</div>' +
             '</div>',
             '<button data-action="close-modal" data-modal="modal-generic-admin" class="px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold">Hủy</button>' +
             '<button data-action="save-footer" class="px-5 py-2 rounded-xl text-white text-xs font-bold" style="background-color: var(--primary);">Lưu thông tin</button>'
           );
+
+          const qrFileInput = document.getElementById('ft-fb-qr-file');
+          const qrUrlInput = document.getElementById('ft-fb-qr-url');
+          const qrClearBtn = document.getElementById('ft-fb-qr-clear');
+          if (qrFileInput && qrUrlInput) {
+            qrFileInput.addEventListener('change', function (ev) {
+              const file = ev.target.files && ev.target.files[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = function (loadEv) {
+                qrUrlInput.value = String(loadEv.target.result || '');
+              };
+              reader.readAsDataURL(file);
+            });
+          }
+          if (qrClearBtn && qrUrlInput) {
+            qrClearBtn.addEventListener('click', function () {
+              qrUrlInput.value = '';
+            });
+          }
           return;
         }
 
-if (action === 'save-footer') {
+        if (action === 'save-footer') {
           let fbUrl = document.getElementById('ft-fb-url').value.trim();
           if (fbUrl && !/^https?:\/\//i.test(fbUrl)) {
             fbUrl = 'https://' + fbUrl;
           }
           state.footer.about = document.getElementById('ft-about').value.trim();
-          state.footer.address = document.getElementById('ft-addr').value.trim();
+          state.footer.address = document.getElementById('ft-address').value.trim();
           state.footer.phone = document.getElementById('ft-phone').value.trim();
           state.footer.email = document.getElementById('ft-email').value.trim();
           state.footer.facebookUrl = fbUrl;
@@ -4419,14 +4482,13 @@ if (action === 'save-footer') {
           state.footer.facebookQrUrl = document.getElementById('ft-fb-qr-url').value.trim();
           state.footer.bankName = document.getElementById('ft-bank').value.trim();
           state.footer.accountHolder = document.getElementById('ft-holder').value.trim();
-          state.footer.accountNumber = document.getElementById('ft-accnum').value.trim();
+          state.footer.accountNumber = document.getElementById('ft-acc').value.trim();
           saveState();
           renderStorefront();
           document.getElementById('modal-generic-admin').classList.add('hidden');
           showToast('Đã cập nhật chân trang & thông tin Facebook');
           return;
         }
-
         if (action === 'open-product-detail') {
           openProductDetail(trigger.getAttribute('data-id'));
           return;
