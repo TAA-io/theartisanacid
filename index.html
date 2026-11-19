@@ -4829,3 +4829,34 @@
   </script>
 </body>
 </html>
+// Đoạn mã vá lỗi mất nội dung khi đồng bộ 5 giây
+window._consultReplyDrafts = window._consultReplyDrafts || {};
+
+document.addEventListener('input', function (e) {
+  const el = e.target;
+  if (el && (el.matches('[data-consult-reply], .consult-reply-input, textarea[id*="reply"], input[id*="reply"]'))) {
+    const key = el.dataset.consultId || el.id || 'default_reply';
+    window._consultReplyDrafts[key] = {
+      value: el.value,
+      start: el.selectionStart,
+      end: el.selectionEnd,
+      focused: document.activeElement === el
+    };
+  }
+});
+
+function restoreConsultReplyDrafts() {
+  document.querySelectorAll('[data-consult-reply], .consult-reply-input, textarea[id*="reply"], input[id*="reply"]').forEach(el => {
+    const key = el.dataset.consultId || el.id || 'default_reply';
+    const draft = window._consultReplyDrafts[key];
+    if (draft && draft.value !== undefined) {
+      el.value = draft.value;
+      if (draft.focused) {
+        el.focus();
+        if (typeof draft.start === 'number') {
+          el.setSelectionRange(draft.start, draft.end);
+        }
+      }
+    }
+  });
+}
