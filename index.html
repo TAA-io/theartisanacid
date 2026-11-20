@@ -2905,16 +2905,26 @@ state.reviews.map(function (rv) {
           listEl.innerHTML = '<p class="text-xs text-slate-500 italic">Chưa có bình luận nào cho sản phẩm này. Hãy là người đầu tiên chia sẻ cảm nhận!</p>';
           return;
         }
-        listEl.innerHTML = list.slice().reverse().map(function (cm) {
+const admin = typeof isAdminUser === 'function' && isAdminUser();
+        listEl.innerHTML = list.slice().reverse().map(function (cm, revIdx) {
+          const origIdx = list.length - 1 - revIdx;
           const cmImgHtml = cm.imageUrl
             ? '<div class="pt-1.5">' +
                 '<img src="' + escapeHTML(cm.imageUrl) + '" alt="Ảnh đánh giá từ ' + escapeHTML(cm.name) + '" class="max-h-44 rounded-xl object-contain bg-white p-1 border border-slate-200" />' +
               '</div>'
             : '';
+          const delBtnHtml = admin
+            ? '<button type="button" data-del-comment-idx="' + origIdx + '" class="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[11px] font-bold transition" title="Xóa bình luận này">' +
+                '<i class="fa-solid fa-trash-can"></i><span>Xóa</span>' +
+              '</button>'
+            : '';
           return '<div class="p-4 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-1.5">' +
-            '<div class="flex items-center justify-between">' +
+            '<div class="flex items-center justify-between gap-2">' +
               '<strong class="text-xs sm:text-sm text-slate-900">' + escapeHTML(cm.name) + '</strong>' +
-              '<span class="text-[11px] text-slate-400">' + escapeHTML(cm.date) + '</span>' +
+              '<div class="flex items-center gap-2">' +
+                '<span class="text-[11px] text-slate-400">' + escapeHTML(cm.date) + '</span>' +
+                delBtnHtml +
+              '</div>' +
             '</div>' +
             '<p class="text-xs sm:text-sm text-slate-600">' + escapeHTML(cm.content) + '</p>' +
             cmImgHtml +
@@ -5180,6 +5190,26 @@ if (action === 'open-footer-modal') {
         syncCommentAuthorFromUser();
         renderPdComments();
         showToast('Cảm ơn bạn đã gửi bình luận!');
+        // Quản trị viên xóa bình luận sản phẩm
+      (function initAdminDeleteComment() {
+        const listEl = document.getElementById('pd-comments-list');
+        if (!listEl) return;
+        listEl.addEventListener('click', function (e) {
+          const btn = e.target.closest('[data-del-comment-idx]');
+          if (!btn) return;
+          if (typeof isAdminUser !== 'function' || !isAdminUser()) return;
+          if (!activeProductDetailId || !state.comments || !Array.isArray(state.comments[activeProductDetailId])) return;
+
+          const idx = Number(btn.getAttribute('data-del-comment-idx'));
+          if (Number.isNaN(idx) || idx < 0 || idx >= state.comments[activeProductDetailId].length) return;
+          if (!confirm('Bạn có chắc muốn xóa bình luận này không?')) return;
+
+          state.comments[activeProductDetailId].splice(idx, 1);
+          saveState();
+          renderPdComments();
+          showToast('Đã xóa bình luận');
+        });
+      })();
       });
       // Lắng nghe thay đổi thanh trượt trong Studio & Media Editor
       document.addEventListener('input', function (e) {
