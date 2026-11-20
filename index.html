@@ -2992,7 +2992,20 @@ state.reviews.map(function (rv) {
           '</div>';
         }).join('');
       }
-
+function syncCommentAuthorFromUser() {
+        const nameInput = document.querySelector('#product-detail-view input[placeholder*="Tên của bạn"]') ||
+                          document.querySelector('input[placeholder*="Tên của bạn"]');
+        if (!nameInput) return;
+        if (state.currentUser) {
+          const autoName = (state.currentUser.name || '').trim() ||
+                           (state.currentUser.email ? state.currentUser.email.split('@')[0] : '');
+          if (autoName && !nameInput.value.trim()) {
+            nameInput.value = autoName;
+          }
+        } else {
+          nameInput.value = '';
+        }
+      }
       function openProductDetail(productId) {
         const p = state.products.find(function (x) { return x.id === productId; });
         if (!p) return;
@@ -3003,6 +3016,7 @@ state.reviews.map(function (rv) {
         document.getElementById('pd-breadcrumb-name').textContent = p.name;
         document.getElementById('pd-badge').textContent = p.badge || 'ĐẶC SẢN';
         document.getElementById('pd-title').textContent = p.name;
+        syncCommentAuthorFromUser();
         const ratingScore = p.ratingScore != null ? Number(p.ratingScore) : 4.9;
         const ratingText = p.ratingText != null ? p.ratingText : '(4.9/5 đánh giá thực tế)';
         const pdStarsEl = document.getElementById('pd-rating-stars');
@@ -5063,6 +5077,7 @@ if (action === 'open-footer-modal') {
         });
         saveState();
         document.getElementById('pd-comment-content').value = '';
+        syncCommentAuthorFromUser();
         renderPdComments();
         showToast('Cảm ơn bạn đã gửi bình luận!');
       });
