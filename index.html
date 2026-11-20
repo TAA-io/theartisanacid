@@ -2443,7 +2443,7 @@
                 (admin ? '<button data-action="open-reviews-modal" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition"><i class="fa-solid fa-pen"></i><span>Sửa đánh giá</span></button>' : '') +
               '</div>' +
               '<div class="grid grid-cols-1 md:grid-cols-3 gap-4">' +
-             state.reviews.map(function (rv) {
+state.reviews.map(function (rv) {
                 const ratingVal = rv.rating != null ? Number(rv.rating) : 5;
                 let starsHtml = '';
                 for (let s = 1; s <= 5; s++) {
@@ -2451,12 +2451,20 @@
                   else if (ratingVal >= s - 0.5) starsHtml += '<i class="fa-solid fa-star-half-stroke"></i>';
                   else starsHtml += '<i class="fa-regular fa-star text-slate-300"></i>';
                 }
-                return '<div class="rounded-2xl bg-slate-50/90 border border-slate-200/70 p-4 sm:p-5 space-y-2.5">' +
-                  '<div class="flex items-center justify-between gap-2">' +
-                    '<div class="flex items-center gap-1 text-amber-400 text-xs">' + starsHtml + '</div>' +
-                    (admin ? '<button type="button" data-action="open-reviews-modal" class="w-6 h-6 rounded-lg bg-white hover:bg-amber-50 text-slate-500 hover:text-amber-700 border border-slate-200 inline-flex items-center justify-center text-[10px] transition" title="Sửa số sao &amp; đánh giá"><i class="fa-solid fa-pen"></i></button>' : '') +
+                const imgHtml = rv.imageUrl
+                  ? '<div class="pt-1">' +
+                      '<img src="' + escapeHTML(rv.imageUrl) + '" alt="Ảnh phản hồi từ ' + escapeHTML(rv.author) + '" class="w-full max-h-48 object-contain rounded-xl bg-white p-1 border border-slate-200/80" />' +
+                    '</div>'
+                  : '';
+                return '<div class="rounded-2xl bg-slate-50/90 border border-slate-200/70 p-4 sm:p-5 space-y-2.5 flex flex-col justify-between">' +
+                  '<div class="space-y-2.5">' +
+                    '<div class="flex items-center justify-between gap-2">' +
+                      '<div class="flex items-center gap-1 text-amber-400 text-xs">' + starsHtml + '</div>' +
+                      (admin ? '<button type="button" data-action="open-reviews-modal" class="w-6 h-6 rounded-lg bg-white hover:bg-amber-50 text-slate-500 hover:text-amber-700 border border-slate-200 inline-flex items-center justify-center text-[10px] transition" title="Sửa, thêm hoặc xóa đánh giá"><i class="fa-solid fa-pen"></i></button>' : '') +
+                    '</div>' +
+                    '<p class="text-xs sm:text-sm text-slate-700 italic leading-relaxed">“' + escapeHTML(rv.text) + '”</p>' +
+                    imgHtml +
                   '</div>' +
-                  '<p class="text-xs sm:text-sm text-slate-700 italic leading-relaxed">“' + escapeHTML(rv.text) + '”</p>' +
                   '<div class="pt-1">' +
                     '<div class="font-extrabold text-slate-900 text-xs">' + escapeHTML(rv.author) + '</div>' +
                     '<div class="text-[11px] text-slate-500">' + escapeHTML(rv.role) + '</div>' +
@@ -4287,43 +4295,177 @@
           return;
         }
 
-       if (action === 'open-reviews-modal') {
+if (action === 'open-reviews-modal') {
           if (!isAdminUser()) return;
+
+          function buildReviewCardHTML(rv, idx) {
+            const curRating = rv.rating != null ? Number(rv.rating) : 5;
+            const ratingOpts = [5, 4.5, 4, 3.5, 3, 2, 1].map(function (val) {
+              return '<option value="' + val + '" ' + (curRating === val ? 'selected' : '') + '>' + val + ' sao</option>';
+            }).join('');
+            const imgVal = rv.imageUrl || '';
+            return '<div class="rv-admin-item p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2.5">' +
+              '<div class="flex items-center justify-between gap-2">' +
+                '<span class="text-[11px] font-extrabold uppercase tracking-wider text-slate-500 rv-item-label">Cảm nhận #' + (idx + 1) + '</span>' +
+                '<button type="button" class="rv-delete-btn inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[11px] font-bold transition">' +
+                  '<i class="fa-solid fa-trash-can"></i><span>Xóa</span>' +
+                '</button>' +
+              '</div>' +
+              '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">' +
+                '<input type="text" value="' + escapeHTML(rv.author || '') + '" placeholder="Tên khách hàng" class="rv-author-input px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-bold" />' +
+                '<input type="text" value="' + escapeHTML(rv.role || '') + '" placeholder="Danh hiệu / Khu vực" class="rv-role-input px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs" />' +
+                '<select class="rv-rating-input px-2.5 py-1.5 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-700">' + ratingOpts + '</select>' +
+              '</div>' +
+              '<textarea rows="2" placeholder="Nội dung cảm nhận của khách hàng..." class="rv-text-input w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs">' + escapeHTML(rv.text || '') + '</textarea>' +
+              '<div class="p-2.5 rounded-xl bg-white border border-slate-200/90 space-y-2">' +
+                '<div class="flex flex-col sm:flex-row sm:items-center gap-2">' +
+                  '<input type="text" value="' + escapeHTML(imgVal) + '" placeholder="Dán link ảnh phản hồi (https://...) hoặc tải ảnh lên" class="rv-img-input flex-1 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-300 text-xs" />' +
+                  '<div class="flex items-center gap-2 shrink-0">' +
+                    '<label class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[11px] font-bold cursor-pointer">' +
+                      '<i class="fa-solid fa-image"></i><span>Chọn ảnh</span>' +
+                      '<input type="file" accept="image/*" class="rv-img-file hidden" />' +
+                    '</label>' +
+                    '<button type="button" class="rv-img-clear text-[11px] font-bold text-rose-600 hover:underline">Xóa ảnh</button>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="rv-img-preview-wrap ' + (imgVal ? '' : 'hidden') + '">' +
+                  '<img src="' + escapeHTML(imgVal) + '" alt="Xem trước" class="rv-img-preview max-h-24 rounded-lg border border-slate-200 object-contain bg-slate-50 p-1" />' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+          }
+
           openGenericAdminModal(
             'Chỉnh sửa Số sao & Cảm nhận khách hàng',
             '<div class="space-y-3">' +
-              state.reviews.map(function (rv, idx) {
-                const curRating = rv.rating != null ? Number(rv.rating) : 5;
-                const ratingOpts = [5, 4.5, 4, 3.5, 3, 2, 1].map(function (val) {
-                  return '<option value="' + val + '" ' + (curRating === val ? 'selected' : '') + '>' + val + ' sao</option>';
-                }).join('');
-                return '<div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">' +
-                  '<div class="grid grid-cols-1 sm:grid-cols-3 gap-2">' +
-                    '<input id="rv-author-' + idx + '" type="text" value="' + escapeHTML(rv.author) + '" placeholder="Tên khách hàng" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs font-bold" />' +
-                    '<input id="rv-role-' + idx + '" type="text" value="' + escapeHTML(rv.role) + '" placeholder="Danh hiệu / Khu vực" class="px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs" />' +
-                    '<select id="rv-rating-' + idx + '" class="px-2.5 py-1.5 rounded-lg bg-white border border-amber-300 text-xs font-bold text-amber-700">' + ratingOpts + '</select>' +
-                  '</div>' +
-                  '<textarea id="rv-text-' + idx + '" rows="2" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-slate-300 text-xs">' + escapeHTML(rv.text) + '</textarea>' +
-                '</div>';
-              }).join('') +
+              '<div id="rv-admin-list" class="space-y-3">' +
+                state.reviews.map(function (rv, idx) {
+                  return buildReviewCardHTML(rv, idx);
+                }).join('') +
+              '</div>' +
+              '<button type="button" id="rv-add-btn" class="w-full py-2.5 rounded-2xl border-2 border-dashed border-emerald-300 bg-emerald-50/60 hover:bg-emerald-100/70 text-emerald-800 text-xs font-extrabold inline-flex items-center justify-center gap-1.5 transition">' +
+                '<i class="fa-solid fa-plus"></i><span>Thêm cảm nhận khách hàng mới</span>' +
+              '</button>' +
             '</div>',
             '<button data-action="close-modal" data-modal="modal-generic-admin" class="px-4 py-2 rounded-xl bg-white border border-slate-300 text-xs font-bold">Hủy</button>' +
             '<button data-action="save-reviews" class="px-5 py-2 rounded-xl text-white text-xs font-bold" style="background-color: var(--primary);">Lưu</button>'
           );
+
+          function refreshReviewLabels() {
+            const items = document.querySelectorAll('#rv-admin-list .rv-admin-item');
+            items.forEach(function (el, i) {
+              const lbl = el.querySelector('.rv-item-label');
+              if (lbl) lbl.textContent = 'Cảm nhận #' + (i + 1);
+            });
+          }
+
+          function bindReviewCardEvents(cardEl) {
+            const delBtn = cardEl.querySelector('.rv-delete-btn');
+            const imgInput = cardEl.querySelector('.rv-img-input');
+            const fileInput = cardEl.querySelector('.rv-img-file');
+            const clearBtn = cardEl.querySelector('.rv-img-clear');
+            const previewWrap = cardEl.querySelector('.rv-img-preview-wrap');
+            const previewImg = cardEl.querySelector('.rv-img-preview');
+
+            function updatePreview(url) {
+              if (url && url.trim()) {
+                previewImg.src = url.trim();
+                previewWrap.classList.remove('hidden');
+              } else {
+                previewImg.src = '';
+                previewWrap.classList.add('hidden');
+              }
+            }
+
+            if (delBtn) {
+              delBtn.addEventListener('click', function () {
+                cardEl.remove();
+                refreshReviewLabels();
+              });
+            }
+            if (imgInput) {
+              imgInput.addEventListener('input', function () {
+                updatePreview(imgInput.value);
+              });
+            }
+            if (clearBtn) {
+              clearBtn.addEventListener('click', function () {
+                imgInput.value = '';
+                updatePreview('');
+              });
+            }
+            if (fileInput) {
+              fileInput.addEventListener('change', function (ev) {
+                const file = ev.target.files && ev.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function (loadEv) {
+                  const img = new Image();
+                  img.onload = function () {
+                    const maxW = 640;
+                    let w = img.width;
+                    let h = img.height;
+                    if (w > maxW) {
+                      h = Math.round((h * maxW) / w);
+                      w = maxW;
+                    }
+                    const canvas = document.createElement('canvas');
+                    canvas.width = w;
+                    canvas.height = h;
+                    canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+                    const compressed = canvas.toDataURL('image/jpeg', 0.78);
+                    imgInput.value = compressed;
+                    updatePreview(compressed);
+                  };
+                  img.src = loadEv.target.result;
+                };
+                reader.readAsDataURL(file);
+              });
+            }
+          }
+
+          document.querySelectorAll('#rv-admin-list .rv-admin-item').forEach(bindReviewCardEvents);
+
+          const addBtn = document.getElementById('rv-add-btn');
+          const listContainer = document.getElementById('rv-admin-list');
+          if (addBtn && listContainer) {
+            addBtn.addEventListener('click', function () {
+              const nextIdx = listContainer.querySelectorAll('.rv-admin-item').length;
+              const temp = document.createElement('div');
+              temp.innerHTML = buildReviewCardHTML({ author: '', role: 'Khách hàng thân thiết', rating: 5, text: '', imageUrl: '' }, nextIdx);
+              const newCard = temp.firstElementChild;
+              listContainer.appendChild(newCard);
+              bindReviewCardEvents(newCard);
+              refreshReviewLabels();
+            });
+          }
           return;
         }
 
         if (action === 'save-reviews') {
-          state.reviews.forEach(function (rv, idx) {
-            rv.author = document.getElementById('rv-author-' + idx).value.trim() || rv.author;
-            rv.role = document.getElementById('rv-role-' + idx).value.trim();
-            rv.rating = Number(document.getElementById('rv-rating-' + idx).value) || 5;
-            rv.text = document.getElementById('rv-text-' + idx).value.trim();
+          const cards = document.querySelectorAll('#rv-admin-list .rv-admin-item');
+          const updatedReviews = [];
+          cards.forEach(function (card) {
+            const author = card.querySelector('.rv-author-input').value.trim();
+            const role = card.querySelector('.rv-role-input').value.trim();
+            const rating = Number(card.querySelector('.rv-rating-input').value) || 5;
+            const text = card.querySelector('.rv-text-input').value.trim();
+            const imageUrl = card.querySelector('.rv-img-input').value.trim();
+            if (author || text || imageUrl) {
+              updatedReviews.push({
+                author: author || 'Khách hàng',
+                role: role || 'Khách hàng thân thiết',
+                rating: rating,
+                text: text,
+                imageUrl: imageUrl
+              });
+            }
           });
+          state.reviews = updatedReviews;
           saveState();
           renderStorefront();
           document.getElementById('modal-generic-admin').classList.add('hidden');
-          showToast('Đã cập nhật số sao & cảm nhận khách hàng');
+          showToast('Đã lưu danh sách cảm nhận khách hàng');
           return;
         }
 
