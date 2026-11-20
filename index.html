@@ -2998,11 +2998,12 @@ function syncCommentAuthorFromUser() {
                           document.querySelector('#product-detail-view input[placeholder*="Tên của bạn"]');
         if (!nameInput) return;
 
-        const userObj = (typeof state !== 'undefined' && state.currentUser) ||
+        let autoName = '';
+
+        // 1. Lấy từ biến state hoặc biến toàn cục nếu có
+        const userObj = (typeof state !== 'undefined' && (state.currentUser || state.user || state.authUser)) ||
                         (typeof currentUser !== 'undefined' && currentUser) ||
                         null;
-
-        let autoName = '';
         if (userObj) {
           if (typeof userObj === 'string') {
             autoName = userObj.includes('@') ? userObj.split('@')[0] : userObj;
@@ -3012,12 +3013,16 @@ function syncCommentAuthorFromUser() {
           }
         }
 
+        // 2. Nếu chưa có, đọc trực tiếp từ nút tài khoản (nút có icon phong bì/user) trên thanh header
         if (!autoName) {
-          const accountBtn = document.querySelector('[data-action="open-account-modal"], #btn-user-profile, #header-user-name');
-          if (accountBtn) {
-            const btnText = accountBtn.textContent.trim();
-            if (btnText && !/đăng nhập/i.test(btnText)) {
-              autoName = btnText.includes('@') ? btnText.split('@')[0] : btnText;
+          const headerBtns = document.querySelectorAll('header button, nav button');
+          for (let i = 0; i < headerBtns.length; i++) {
+            const btn = headerBtns[i];
+            const txt = (btn.textContent || '').trim();
+            if (!txt || /đăng nhập|giỏ hàng|đơn của tôi|xuất html|đồng bộ|trực tuyến/i.test(txt)) continue;
+            if (btn.querySelector('.fa-envelope, .fa-user, .fa-circle-user') || txt.includes('@')) {
+              autoName = txt.includes('@') ? txt.split('@')[0] : txt;
+              break;
             }
           }
         }
