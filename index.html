@@ -2883,7 +2883,8 @@ state.reviews.map(function (rv) {
       }
 
       function renderPdComments() {
-        const listEl = document.getElementById('pd-comments-list');
+        if (typeof syncCommentAuthorFromUser === 'function') syncCommentAuthorFromUser();
+        const listEl = document.getElementById('pd-comments-list');     
         if (!listEl || !activeProductDetailId) return;
         const list = (state.comments && state.comments[activeProductDetailId]) || [];
         if (list.length === 0) {
@@ -2993,17 +2994,36 @@ state.reviews.map(function (rv) {
         }).join('');
       }
 function syncCommentAuthorFromUser() {
-        const nameInput = document.querySelector('#product-detail-view input[placeholder*="Tên của bạn"]') ||
-                          document.querySelector('input[placeholder*="Tên của bạn"]');
+        const nameInput = document.getElementById('pd-comment-name') ||
+                          document.querySelector('#product-detail-view input[placeholder*="Tên của bạn"]');
         if (!nameInput) return;
-        if (state.currentUser) {
-          const autoName = (state.currentUser.name || '').trim() ||
-                           (state.currentUser.email ? state.currentUser.email.split('@')[0] : '');
-          if (autoName && !nameInput.value.trim()) {
-            nameInput.value = autoName;
+
+        const userObj = (typeof state !== 'undefined' && state.currentUser) ||
+                        (typeof currentUser !== 'undefined' && currentUser) ||
+                        null;
+
+        let autoName = '';
+        if (userObj) {
+          if (typeof userObj === 'string') {
+            autoName = userObj.includes('@') ? userObj.split('@')[0] : userObj;
+          } else {
+            autoName = (userObj.name || userObj.displayName || userObj.fullName || userObj.username || '').trim() ||
+                       (userObj.email ? userObj.email.split('@')[0] : '');
           }
-        } else {
-          nameInput.value = '';
+        }
+
+        if (!autoName) {
+          const accountBtn = document.querySelector('[data-action="open-account-modal"], #btn-user-profile, #header-user-name');
+          if (accountBtn) {
+            const btnText = accountBtn.textContent.trim();
+            if (btnText && !/đăng nhập/i.test(btnText)) {
+              autoName = btnText.includes('@') ? btnText.split('@')[0] : btnText;
+            }
+          }
+        }
+
+        if (autoName && !nameInput.value.trim()) {
+          nameInput.value = autoName;
         }
       }
       function openProductDetail(productId) {
