@@ -5190,26 +5190,27 @@ if (action === 'open-footer-modal') {
         syncCommentAuthorFromUser();
         renderPdComments();
         showToast('Cảm ơn bạn đã gửi bình luận!');
-        // Quản trị viên xóa bình luận sản phẩm
-      (function initAdminDeleteComment() {
-        const listEl = document.getElementById('pd-comments-list');
-        if (!listEl) return;
-        listEl.addEventListener('click', function (e) {
-          const btn = e.target.closest('[data-del-comment-idx]');
-          if (!btn) return;
-          if (typeof isAdminUser !== 'function' || !isAdminUser()) return;
-          if (!activeProductDetailId || !state.comments || !Array.isArray(state.comments[activeProductDetailId])) return;
+// Quản trị viên xóa bình luận sản phẩm (gắn toàn cục để không bị mất khi vẽ lại giao diện)
+      document.addEventListener('click', function (e) {
+        const btn = e.target.closest('[data-del-comment-idx]');
+        if (!btn) return;
+        e.preventDefault();
+        e.stopPropagation();
 
-          const idx = Number(btn.getAttribute('data-del-comment-idx'));
-          if (Number.isNaN(idx) || idx < 0 || idx >= state.comments[activeProductDetailId].length) return;
-          if (!confirm('Bạn có chắc muốn xóa bình luận này không?')) return;
+        if (typeof isAdminUser !== 'function' || !isAdminUser()) return;
+        if (!activeProductDetailId || !state.comments || !Array.isArray(state.comments[activeProductDetailId])) return;
 
-          state.comments[activeProductDetailId].splice(idx, 1);
-          saveState();
-          renderPdComments();
-          showToast('Đã xóa bình luận');
-        });
-      })();
+        const idx = Number(btn.getAttribute('data-del-comment-idx'));
+        if (Number.isNaN(idx) || idx < 0 || idx >= state.comments[activeProductDetailId].length) return;
+
+        state.comments[activeProductDetailId].splice(idx, 1);
+        if (state.comments[activeProductDetailId].length === 0) {
+          delete state.comments[activeProductDetailId];
+        }
+
+        saveState();
+        renderPdComments();
+        showToast('Đã xóa bình luận');
       });
       // Lắng nghe thay đổi thanh trượt trong Studio & Media Editor
       document.addEventListener('input', function (e) {
