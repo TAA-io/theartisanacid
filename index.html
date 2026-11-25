@@ -338,7 +338,6 @@
                   <i class="fa-solid fa-pen"></i>
                 </button>
               </div>
-              </div>
             </div>
             <h2 id="pd-title" class="text-xl sm:text-3xl font-extrabold text-slate-900 leading-snug">Tên Sản Phẩm</h2>
           </div>
@@ -5025,6 +5024,7 @@ if (action === 'open-footer-modal') {
           if (!Number.isNaN(idx) && idx >= 0 && idx < list.length) {
             list.splice(idx, 1);
             saveState();
+            if (typeof CloudSync !== 'undefined') CloudSync.pushStateNow();
             renderPdComments();
             showToast('Đã xóa bình luận');
           }
@@ -5266,6 +5266,7 @@ if (action === 'open-footer-modal') {
           date: new Date().toLocaleDateString('vi-VN')
         });
         saveState();
+        if (typeof CloudSync !== 'undefined') CloudSync.pushStateNow();
         document.getElementById('pd-comment-content').value = '';
         if (imageInput) imageInput.value = '';
         const fileEl = document.getElementById('pd-comment-image-file');
